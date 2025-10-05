@@ -671,6 +671,32 @@
         let currentUser = null;
         let students = [];
         let interactions = [];
+		
+		    // === CONFIGURACIÓN DEL GOOGLE APPS SCRIPT ===
+    const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbwDv-ELLVYPNz2UMeDg0XMiSr2JnJ16QlGxaab5ETXBKhvk-Dt05YY3u9hzQjfgtOp6Aw/exec";
+    const GAS_TOKEN = "Neutrino_2025_SECURE_1978";
+
+    // === Función para enviar registros a tu hoja de cálculo ===
+    async function logToGAS({ code, name = "", course = "", event = "" }) {
+        try {
+            await fetch(GAS_ENDPOINT, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    token: GAS_TOKEN,
+                    code,
+                    name,
+                    course,
+                    userAgent: navigator.userAgent,
+                    timestamp: new Date().toISOString(),
+                    event
+                })
+            });
+        } catch (err) {
+            console.error("Error enviando datos a Google Apps Script:", err);
+        }
+    }
+		
 
         function switchTab(tab) {
             const buttons = document.querySelectorAll('.tab-button');
@@ -714,6 +740,8 @@
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('studentDashboard').classList.remove('hidden');
 			window.scrollTo({ top: 0, left: 0 });
+			logToGAS({ code, event: "login" });
+
         }
 
         function loginAdmin() {
@@ -754,6 +782,9 @@
                     timestamp: new Date().toISOString()
                 });
             }
+			
+			logToGAS({ code: currentUser.code, event: `click:${resource}` });
+
         }
 
         function updateStats() {
