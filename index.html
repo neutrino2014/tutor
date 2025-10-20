@@ -339,6 +339,30 @@
             background: #a52622;
             box-shadow: var(--shadow);
         }
+		
+	
+	    .btn-channela {
+            width: 100%;
+            padding: 11px 16px;
+            background: #760aa8;
+            color: var(--text-light);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            font-size: 0.9em;
+            margin-top: 12px;
+        }
+
+        .btn-channela:hover {
+            background: #5e0487;
+            box-shadow: var(--shadow);
+        }
+		
 
         .neutrino-section {
             background: var(--card-bg);
@@ -607,19 +631,9 @@
 
             <div class="admin-controls">
                 <h2 class="section-title">Gestión de Datos</h2>
-                <button class="btn-download" onclick="downloadStudents()">⬇️ Descargar Lista de Estudiantes</button>
-                <button class="btn-download" onclick="downloadHistory()">⬇️ Descargar Historial de Interacciones</button>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalStudents">0</div>
-                        <div class="stat-label">Estudiantes Registrados</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalClicks">0</div>
-                        <div class="stat-label">Total de Interacciones</div>
-                    </div>
-                </div>
+                				
+				<a href="https://docs.google.com/spreadsheets/d/1CVxpZpvV9uFezJ33KNU8k10wc4FLppyjMYFQKW8p88o/edit?usp=sharing" target="_blank" class="btn-channela" onclick="trackClick('Descargar historial de actividades')">Descargar historial de actividades</a>
+             
             </div>
 
             <h2 class="section-title">Canales de YouTube - Física</h2>
@@ -654,7 +668,29 @@
                     <a href="https://youtube.com/playlist?list=PLMizswpkLLrPJWARk0ouJblTJBkIr4Lv8" target="_blank" class="btn-channel" onclick="trackClick('Física Arquitectura')">Ver Playlist Completa</a>
                 </div>
             </div>
-
+			
+			<h2 class="section-title"><img src="gradescope.png" width="32" height="32" alt=""/> Ayuda Gradescope </h2>
+            <div class="channels-grid">
+				<div class="channel-card">
+					<div class="channel-title">Examen estudiante</div>
+                    <iframe width="280" height="160" src="https://www.youtube.com/embed/JMq15vYhyyM?si=7uI6oqWwecXX3wHw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+					<a href="https://www.youtube.com/embed/JMq15vYhyyM?si=7uI6oqWwecXX3wHw" target="_blank" class="btn-channel" onclick="trackClick('Examen estudiante')">Ver en YouTube</a>
+				</div>
+				
+				<div class="channel-card">
+					<div class="channel-title">Error opción multiple</div>
+                    <iframe width="280" height="160" src="https://www.youtube.com/embed/lCpvmjqxJUk?si=ghQpWtHHxOg0gQcb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+					<a href="https://www.youtube.com/embed/lCpvmjqxJUk?si=ghQpWtHHxOg0gQcb" target="_blank" class="btn-channel" onclick="trackClick('Error opción multiple')">Ver en YouTube</a>
+				</div>	
+				
+				<div class="channel-card">
+					<div class="channel-title">Error pregunta desarollo</div>
+                    <iframe width="280" height="160" src="https://www.youtube.com/embed/cr1q-P8q-dE?si=4AkETHJ5R45lA5jw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+					<a href="https://www.youtube.com/embed/cr1q-P8q-dE?si=4AkETHJ5R45lA5jw" target="_blank" class="btn-channel" onclick="trackClick('Error pregunta desarollo')">Ver en YouTube</a>
+				</div>
+            </div>
+				
+				
             <div class="neutrino-section">
                 <div class="neutrino-content">
                     <div class="neutrino-info">
@@ -664,8 +700,7 @@
                     <a href="https://chatgpt.com/g/g-682b57c92b208191b5add667cb74e058-neutrino" target="_blank" class="btn-neutrino">Abrir Neutrino</a>
                 </div>
             </div>
-        </div>
-    </div>
+       </div>
 
     <script>
         let currentUser = null;
@@ -679,18 +714,19 @@
     // === Función para enviar registros a tu hoja de cálculo ===
     async function logToGAS({ code, name = "", course = "", event = "" }) {
         try {
+            const payload = new URLSearchParams({
+                token: GAS_TOKEN,
+                code,
+                name,
+                course,
+                userAgent: navigator.userAgent,
+                timestamp: new Date().toISOString(),
+                event
+            });
             await fetch(GAS_ENDPOINT, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    token: GAS_TOKEN,
-                    code,
-                    name,
-                    course,
-                    userAgent: navigator.userAgent,
-                    timestamp: new Date().toISOString(),
-                    event
-                })
+                headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+                body: payload.toString()
             });
         } catch (err) {
             console.error("Error enviando datos a Google Apps Script:", err);
@@ -717,11 +753,12 @@
         }
 
         function loginStudent() {
-            const code = document.getElementById('studentNameInput').value.trim();
+            const name = document.getElementById('studentNameInput').value.trim();
+            const code = document.getElementById('studentCode').value.trim();
             const errorDiv = document.getElementById('studentError');
             
-            if (code === '') {
-                errorDiv.textContent = 'Por favor ingresa tu código de estudiante';
+            if (!name || !code) {
+                errorDiv.textContent = 'Por favor ingresa tu nombre y tu código de estudiante';
                 errorDiv.classList.add('show');
                 return;
             }
@@ -731,29 +768,39 @@
             if (!students.find(s => s.code === code)) {
                 students.push({
                     code: code,
+                    name: name,
                     registeredAt: new Date().toISOString()
                 });
             }
             
-            currentUser = { type: 'student', code: code };
-            document.getElementById('studentName').textContent = code;
+            currentUser = { type: 'student', code: code, name: name };
+            document.getElementById('studentName').textContent = name;
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('studentDashboard').classList.remove('hidden');
-			window.scrollTo({ top: 0, left: 0 });
-			logToGAS({ code, event: "login" });
-
+            window.scrollTo({ top: 0, left: 0 });
+            logToGAS({ code, name, event: "login" });
         }
 
         function loginAdmin() {
-            const email = document.getElementById('adminEmail').value.trim();
-            const password = document.getElementById('adminPassword').value;
+            const email = (document.getElementById('adminEmail').value || '').trim().toLowerCase();
+            const password = (document.getElementById('adminPassword').value || '').trim();
             const errorDiv = document.getElementById('adminError');
             
-            if (email === 'yamil.minez@upn.edu.pe' && password === 'Neutrino_1978') {
+            if (!email || !password) {
+                errorDiv.textContent = 'Ingresa tu correo y contraseña.';
+                errorDiv.classList.add('show');
+                return;
+            }
+            
+            const ADMIN_EMAIL = 'yamil.minez@upn.edu.pe';
+            const ADMIN_PASS = 'Neutrino_1978';
+            
+            if (email === ADMIN_EMAIL && password === ADMIN_PASS) {
                 errorDiv.classList.remove('show');
-                currentUser = { type: 'admin' };
+                currentUser = { type: 'admin', email };
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('adminDashboard').classList.remove('hidden');
+                window.scrollTo({ top: 0, left: 0 });
                 updateStats();
             } else {
                 errorDiv.textContent = 'Credenciales incorrectas. Verifica tu correo y contraseña.';
@@ -767,7 +814,10 @@
             document.getElementById('studentDashboard').classList.add('hidden');
             document.getElementById('adminDashboard').classList.add('hidden');
             
-            document.getElementById('studentCode').value = '';
+            const nameEl = document.getElementById('studentNameInput');
+            const codeEl = document.getElementById('studentCode');
+            if (nameEl) nameEl.value = '';
+            if (codeEl) codeEl.value = '';
             document.getElementById('adminEmail').value = '';
             document.getElementById('adminPassword').value = '';
             document.getElementById('studentError').classList.remove('show');
@@ -783,7 +833,7 @@
                 });
             }
 			
-			logToGAS({ code: currentUser.code, event: `click:${resource}` });
+			logToGAS({ code: currentUser.code, name: (currentUser.name || ''), event: `click:${resource}` });
 
         }
 
